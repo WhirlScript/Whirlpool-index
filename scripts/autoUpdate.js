@@ -44,15 +44,16 @@ async function getRepoInf(url) {
                     
                     console.log('raw获取...');
                     const rawRes = (await axios.get(`https://${hub[i]}/${repoPath}/raw/${sha}/whirlpool.json`)).data;
-                    console.log('raw获取完毕');
-                    const raw = JSON.parse(rawRes);
+                    console.log(`raw获取完毕:`);
+                    //console.log(rawRes)
+                    const raw = rawRes;
                     
                     let data = {
                         repo: url,
                         version: raw.version,
                         sha: sha
                     }
-                    console.debug(res);
+                    // console.debug(res);
                     return data;
                 case 'gitlab':
                     //do sth
