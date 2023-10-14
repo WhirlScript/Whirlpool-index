@@ -53,7 +53,7 @@ async function getRepoInf(name, url) {
                         version: raw.version,
                         sha: sha
                     }
-                    console.debug(res);
+                    // console.debug(res);
                     return data;
                 case 'gitlab':
                     //do sth
