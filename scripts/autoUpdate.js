@@ -4,7 +4,6 @@
 const fs = require('fs');
 const axios = require('axios');
 
-
 const defaultInf = {
     name: null,
     repo: null,
@@ -19,8 +18,8 @@ const defaultInf = {
 
 const packages = JSON.parse(fs.readFileSync('../packages.json').toString());
 
-
-async function getRepoInf(url) {
+// 这个函数如果成功返回一个Object，不成功返回null
+async function getRepoInf(name, url) {
     const hub = {
         github: 'github.com',
         gitlab: 'gitlab.com'
@@ -46,7 +45,9 @@ async function getRepoInf(url) {
                     const rawRes = (await axios.get(`https://${hub[i]}/${repoPath}/raw/${sha}/whirlpool.json`)).data;
                     console.log('raw获取完毕');
                     const raw = JSON.parse(rawRes);
-                    
+                    if (rawRes.name !== name) {
+                        return null;
+                    }
                     let data = {
                         repo: url,
                         version: raw.version,
@@ -62,10 +63,26 @@ async function getRepoInf(url) {
         }  // 判断是否是github的url
         return null;
     }
-
-    
-    
 }
+
+async function write2bucket(packName, fileName) {
+    let packagesInf = JSON.parse(JSON.stringify(defaultInf));  // 将JSON拷贝
+    getRepoInf(packName, packages[packName]).then(resolveCallback => {
+        // 生成json数据
+        console.debug(resolveCallback)
+        packagesInf.name = packName;
+        packagesInf.repo = resolveCallback.repo;
+        packagesInf.versions[0].version = resolveCallback.version;
+        packagesInf.versions[0].sha1 = resolveCallback.sha;
+
+        console.log(`${resolveCallback.version} ${resolveCallback.sha}`)
+        // 写入文件
+        fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
+        }
+    );
+}
+
+
 
 
 for (let i in packages) {
@@ -73,20 +90,7 @@ for (let i in packages) {
     // 如果这是一个新的包的话:
     if (!fs.existsSync(fileName)) {
         console.warn(`新的包被写入了：${i}`)
-        let packagesInf = JSON.parse(JSON.stringify(defaultInf));  // 将JSON拷贝
-        getRepoInf(packages[i]).then(resolveCallback => {
-            // 生成json数据
-            packagesInf.name = i;
-            packagesInf.repo = resolveCallback.repo;
-            packagesInf.versions[0].version = resolveCallback.version;
-            packagesInf.versions[0].sha1 = resolveCallback.sha;
-
-            console.log(`${resolveCallback.version} ${resolveCallback.sha}`)
-            // 写入文件
-            fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
-            }
-        );
-        
+        write2bucket(i, fileName);
 
     }
 }
