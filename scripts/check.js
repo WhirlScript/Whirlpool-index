@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const axios = require('axios');
+const { debug } = require('console');
 
 const defaultInf = {
     name: null,
@@ -36,8 +37,8 @@ async function getRepoInf(name, url) {
     const apiRes = (await axios.get(`https://api.github.com/repos/${repoPath}/git/refs/tags`)).data;
     console.log('api获取完毕');
     const sha = apiRes[apiRes.length - 1].object.sha;
-    //const currentVersion = apiRes[apiRes.length - 1].ref.split('refs/tags/')[1];
-    const currentVersion = '1.0.1';  // 4 debug
+    const currentVersion = apiRes[apiRes.length - 1].ref.split('refs/tags/')[1];
+    //const currentVersion = '1.0.1';  // 4 debug
     const version = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath)).versions[0].version : null;
     // 比对tags查看有无新版本
     console.log(`${currentVersion} => ${version}`)
@@ -52,6 +53,7 @@ async function getRepoInf(name, url) {
         hasNewVersion = false
     } else {
         console.log('无新版本')
+        process.exit(0);
         return null;
     }
 
@@ -63,15 +65,14 @@ async function getRepoInf(name, url) {
         repo: url,
         version: rawRes.version,
         sha: sha,
-        hasNewVersion: hasNewVersion
     }
     //console.log(rawRes);
     if (rawRes.name !== name) {
         return null;
     }
     if (hasNewVersion) {
-        let old = JSON.parse(fs.readFileSync(filePath));
-        fs.writeFileSync(JSON.stringify(old.pop(data)));
+        // do sth
+        
     } else {
         return data;
     }

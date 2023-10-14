@@ -1,3 +1,4 @@
+#!/bin/env node
 "use strict";
 const write2bucket = require('./check.js');
 const fs = require('fs');
