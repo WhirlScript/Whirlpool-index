@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const axios = require('axios');
+const { debug } = require('console');
 
 const defaultInf = {
     name: null,
@@ -44,8 +45,8 @@ module.exports = async function write2bucket(packName, fileName) {
     const apiRes = (await axios.get(`https://api.github.com/repos/${repoPath}/git/refs/tags`)).data;
     console.log('api获取完毕');
     const sha = apiRes[apiRes.length - 1].object.sha;
-    //const currentVersion = apiRes[apiRes.length - 1].ref.split('refs/tags/')[1];
-    const currentVersion = '1.0.1';  // 4 debug
+    const currentVersion = apiRes[apiRes.length - 1].ref.split('refs/tags/')[1];
+    //const currentVersion = '1.0.1';  // 4 debug
     const version = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath)).versions[0].version : null;
     // 比对tags查看有无新版本
     console.log(`${currentVersion} => ${version}`)
@@ -60,6 +61,7 @@ module.exports = async function write2bucket(packName, fileName) {
         hasNewVersion = false
     } else {
         console.log('无新版本')
+        process.exit(0);
         return null;
     }
 
@@ -71,7 +73,6 @@ module.exports = async function write2bucket(packName, fileName) {
         repo: url,
         version: rawRes.version,
         sha: sha,
-        hasNewVersion: hasNewVersion
     }
     //console.log(rawRes);
     if (rawRes.name !== packages) {
@@ -81,6 +82,7 @@ module.exports = async function write2bucket(packName, fileName) {
         let old = JSON.parse(fs.readFileSync(filePath));
         fs.writeFileSync(JSON.stringify(old.pop(data)));
     }/* else {
+
         return data;
     }*/
 
