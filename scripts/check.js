@@ -34,7 +34,7 @@ module.exports = async function write2bucket(packName, fileName) {
         return;
     }
     const repoPath = url.split(`https://github.com/`)[1];
-    const filePath = `../bucket/${packages}.json`;
+    const filePath = `../bucket/${packName}.json`;
     let hasNewVersion = null;
 
     console.log('获取githubAPI')
@@ -75,28 +75,37 @@ module.exports = async function write2bucket(packName, fileName) {
         sha: sha,
     }
     //console.log(rawRes);
-    if (rawRes.name !== packages) {
+    if (rawRes.name !== packName) {
+        console.debug('名字不一致，退出');
+        console.debug(rawRes.name + '   ' + packName)
         return null;
     }
-    if (hasNewVersion) {
-        let old = JSON.parse(fs.readFileSync(filePath));
-        fs.writeFileSync(JSON.stringify(old.pop(data)));
-    }/* else {
-
-        return data;
-    }*/
-
-    packagesInf.name = packName;
-    packagesInf.repo = data.repo;
-    packagesInf.versions[1] = packagesInf.versions[0];
-    packagesInf.versions[0].version = data.version;
-    packagesInf.versions[0].sha1 = data.sha;
     
-    console.log(`${data.version} ${data.sha}`)
-    // 写入文件
-    packagesInf
 
-    fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
+    
+    if (hasNewVersion) {
+        let tmpPackInf = JSON.parse(fs.readFileSync(filePath));
+        let newVersionInf = {
+            version: data.version,
+            dependencies: {},
+            sha1: data.sha
+        }
+        tmpPackInf.versions.unshift(newVersionInf);
+        //console.log(newVersionInf)
+        console.log(tmpPackInf)
+        fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(tmpPackInf));
+    } else {
+        packagesInf.name = packName;
+        packagesInf.repo = data.repo;
+        packagesInf.versions[0].version = data.version;
+        packagesInf.versions[0].sha1 = data.sha;
+    
+        console.log(`${data.version} ${data.sha}`)
+        // 写入文件
+        //console.debug(packagesInf);
+
+        fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
+    }
         /*
         getRepoInf(packName, packages[packName]).then(data => {
             // 生成json数据
