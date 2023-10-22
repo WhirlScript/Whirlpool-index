@@ -1,0 +1,14 @@
+name: 'update'
+on:
+  schedule:
+    - cron: 0 0/3/6/9/12/15/18/21 * * *
+jobs:
+  runscript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'checkout'
+        uses: actions/checkout@v4
+      - name: 'update'
+        run: cd scripts && yarn add axios && node ./autoUpdate.js
+      - name: 'show packs'
+        run: cat packages.json
