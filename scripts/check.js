@@ -98,6 +98,6 @@ module.exports = async function write2bucket(packName, fileName) {
         console.log(`${data.version} ${data.sha}`)
         // 写入文件
         console.debug(fileName);
-        fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
+        fs.writeFileSync(fileName, JSON.stringify(packagesInf));
     }
 }
