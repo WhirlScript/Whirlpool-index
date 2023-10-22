@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: 'checkout'
         uses: actions/checkout@v4
+      - name: 'show dir'
+        run: tree .
       - name: 'update'
         run: cd scripts && yarn add axios && node ./autoUpdate.js
       - name: 'show packs'
