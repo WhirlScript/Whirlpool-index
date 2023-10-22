@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 const axios = require('axios');
-const { debug } = require('console');
+var path  = require('path')
 
 const defaultInf = {
     name: null,
@@ -17,12 +17,8 @@ const defaultInf = {
     ]
 }
 
-// const packages = JSON.parse(fs.readFileSync('../packages.json').toString());
 
 // 这个函数如果成功返回一个Object，不成功返回null
-async function getRepoInf(name, url) {
-    
-}
 
 module.exports = async function write2bucket(packName, fileName) {
     let packagesInf = JSON.parse(JSON.stringify(defaultInf));  // 将JSON拷贝
@@ -97,7 +93,7 @@ module.exports = async function write2bucket(packName, fileName) {
     
         console.log(`${data.version} ${data.sha}`)
         // 写入文件
-        console.debug(fileName);
+        console.debug(path.resolve(fileName));
         fs.writeFileSync(fileName, JSON.stringify(packagesInf));
     }
 }
