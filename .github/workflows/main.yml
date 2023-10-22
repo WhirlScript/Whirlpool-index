@@ -12,3 +12,7 @@ jobs:
         run: cd scripts && yarn add axios && node ./autoUpdate.js
       - name: 'show packs'
         run: cat packages.json
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.TOKEN }}
