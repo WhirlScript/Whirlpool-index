@@ -39,14 +39,12 @@ module.exports = async function write2bucket(packName, fileName) {
 
     console.log('获取githubAPI')
     console.log(`https://api.github.com/repos/${repoPath}`)
-    //console.log((await axios.get(`https://api.github.com/repos/${repoPath}/git/refs/tags`)).data);
     // 获取最新tag的提交
     console.log('api获取...');
     const apiRes = (await axios.get(`https://api.github.com/repos/${repoPath}/git/refs/tags`)).data;
     console.log('api获取完毕');
     const sha = apiRes[apiRes.length - 1].object.sha;
     const currentVersion = apiRes[apiRes.length - 1].ref.split('refs/tags/')[1];
-    //const currentVersion = '1.0.1';  // 4 debug
     const version = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath)).versions[0].version : null;
     // 比对tags查看有无新版本
     console.log(`${currentVersion} => ${version}`)
@@ -80,18 +78,15 @@ module.exports = async function write2bucket(packName, fileName) {
         console.debug(rawRes.name + '   ' + packName)
         return null;
     }
-    
 
-    
     if (hasNewVersion) {
-        let tmpPackInf = JSON.parse(fs.readFileSync(filePath));
         let newVersionInf = {
             version: data.version,
             dependencies: {},
             sha1: data.sha
         }
+        tmpPackInf = fs.existsSync(filePath);
         tmpPackInf.versions.unshift(newVersionInf);
-        //console.log(newVersionInf)
         console.log(tmpPackInf)
         fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(tmpPackInf));
     } else {
@@ -102,21 +97,7 @@ module.exports = async function write2bucket(packName, fileName) {
     
         console.log(`${data.version} ${data.sha}`)
         // 写入文件
-        //console.debug(packagesInf);
-
+        console.debug(fileName);
         fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
     }
-        /*
-        getRepoInf(packName, packages[packName]).then(data => {
-            // 生成json数据
-            //console.debug(data)
-            packagesInf.name = packName;
-            packagesInf.repo = data.repo;
-            packagesInf.versions[0].version = data.version;
-            packagesInf.versions[0].sha1 = data.sha;
-    
-            console.log(`${data.version} ${data.sha}`)
-            // 写入文件
-            fs.writeFileSync(`../bucket/${fileName}`, JSON.stringify(packagesInf));
-        });*/
 }
