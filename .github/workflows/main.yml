@@ -1,5 +1,8 @@
 name: 'update'
 on:
+  push:
+    branches:
+      - 'test'
   schedule:
     - cron: 0/5 * * * *
 jobs:
@@ -15,4 +18,4 @@ jobs:
       - name: Commit & Push changes
         uses: actions-js/push@master
         with:
-          github_token: ${{ secrets.SSH_SSH }}
+          github_token: ${{ secrets.SSH_kEY }}
