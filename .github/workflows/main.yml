@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - 'test'
-  schedule:
-    - cron: 0 0,4,8,12,16,20 * * *
+  #schedule:
+    #- cron: 0 0,4,8,12,16,20 * * *
 jobs:
   runscript:
     runs-on: ubuntu-latest
